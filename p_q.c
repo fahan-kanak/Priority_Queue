@@ -9,6 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define HELP printf("\nTo enqueue: type 'enq'<space>*name* and then hit Enter\nTo dequeue: type 'deq' and then hit Enter\n");
+#define HELP_2 printf("To see max node: type 'max' and then hit Enter\nTo know Queue size: type 'size' and then hit Enter\n");
+#define HELP_3 printf("To print Queue: type 'print' and then hit Enter\nTo see help: type 'help' and then hit Enter\nTo Quit: type 'quit' and then hit Enter\n");
+
 struct Node {
     char name[20];
     int priority;
@@ -19,6 +23,16 @@ typedef struct Node Queue;
 
 void setPriority(Queue *node) {
     node->priority = (int) node->name[0];
+}
+
+void nameInput(char *str, Queue* node) {
+    int i = 0;
+    int len = strlen(str);
+    while(i < len) {
+        node->name[i] = str[i];
+        i++;
+    }
+    node->name[i] = '\0';
 }
 
 Queue* getMaximumPriorityNode(Queue* front) {
@@ -66,63 +80,71 @@ Queue* dequeue(Queue* max_Node, Queue* front) {
 }
 
 int main(int argc, char** argv) {
-    Queue* front = NULL, *node;
-    int choice;    
-    while (1) {
-        printf("\n1 -> Enqueue\n2 -> Dequeue\n3 -> get Max Node\n4 -> Print Size\n5 -> Print Queue\nAny other num -> Quit\n");
-        printf("\nEnter choice: ");
-        scanf("%d", &choice);
-        switch (choice) {
-            case 1:
+    Queue* front = NULL, *node; 
+    char cmd[30];
+    char *token;
+    printf("Welcome to priority queue command prompt\n");
+    while (1) {       
+        printf("\n> ");
+        scanf("%[^\n]", cmd);
+        getchar();
+        token = strtok(cmd, " ");                                       
+            if (!strcmp(token, "enq")) {
                 if (!front) {
                     front = (Queue *)malloc(sizeof(Queue));
-                    printf("\nEnter name: ");
-                    scanf("%s", front->name);
+                    token = strtok(NULL, " ");
+                    nameInput(token, front);
                     setPriority(front);
                     front->next = NULL;
-                } else {
+                } 
+                else {
                     node = (Queue *)malloc(sizeof(Queue));
-                    printf("\nEnter name: ");
-                    scanf("%s", node->name);
+                    token = strtok(NULL, " ");
+                    nameInput(token, node);
                     setPriority(node);
                     node->next = NULL;
                     enqueue(node, front);
-                }
-                break;
-            case 2:
+                } 
+                printf("\nInsert Success!\n");
+            }
+            else if (!strcmp(token, "deq")) {
                 if (!front) {
                     printf("\nEmpty Queue Exception!!!\n");
-                    goto label;
+                    continue;
                 }
                 node = getMaximumPriorityNode(front);
                 if (node == front) front = front->next;                                    
                 else node = dequeue(node, front);                    
                 printf("\n%s is retrieved\n", node->name);
-                free(node);
-                label: break;
-            case 3:
+                free(node);                
+            }
+            else if (!strcmp(token, "max")) {
                 if (!front) {
                     printf("\nEmpty Queue Exception!!!\n");
-                    goto label_2;
+                    continue;
                 }
                 Queue *node = getMaximumPriorityNode(front);
-                printf("\n%s is max node\n", node->name);
-                label_2: break;
-            case 4:
-                printf("\nQueue size => %d\n", getSize(front));
-                break;
-            case 5:
+                printf("\n%s is max node\n", node->name);                
+            }
+            else if (!strcmp(token, "size")) printf("\nQueue size => %d\n", getSize(front));                           
+            else if (!strcmp(token, "print")) {
                 if (!front) printf("\nEmpty Queue Exception!!!\n");
                 else {
                     printf("\nQueue -> ");
                     printQueue(front);
                     printf("\n");                    
-                }
-                break;
-            default:
+                }                
+            }
+            else if (!strcmp(token, "help")) {
+                HELP
+                HELP_2
+                HELP_3
+            }
+            else if (!strcmp(token, "quit")) {
                 printf("\nBye!!!\n");
                 goto exit;
-        }
+            }
+            else printf("\ncommand not recognized!\n");                                    
     }
 
     exit: return 0;
